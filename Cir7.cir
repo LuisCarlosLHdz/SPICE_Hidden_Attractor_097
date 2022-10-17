@@ -1,0 +1,111 @@
+
+
+*.inc
+.include ad633.inc
+.include TL081.inc
+.include Inte097.inc
+.model D1N4148  D(Is=5.84n N=1.94 Rs=.7017 Ikf=44.17m Xti=3 Eg=1.11 Cjo=.95p M=.55 Vj=.75 Fc=.5 Isr=11.07n Nr=2.088 Bv=100 Ibv=100u Tt=11.07n)
+*Fuentes de Voltaje
+VF F 0 -1
+VA A 0 0.35
+Vdd Vdd 0 15
+Vss Vss 0 -15
+*------K2K1/K3------
+R13a W m13 1e3
+R13b m13 W1 1e3
+XOPQMP13 0 m13 Vdd Vss W1 TL081
+*------Z------
+*SUMADOR---Z
+RS1 W1 m1s 10e3
+RS2 Z0 m1s 10e3
+RF1 Z0 m1s 10e3
+XOPAMP1S 0 m1s Vdd Vss Z0 TL081
+RN1 Z0 m1n 10e3
+RN2 Z1 m1n 10e3
+XOPAMP1N 0 m1n Vdd Vss Z1 TL081
+*INTEGRADOR---Z
+RI1 Z1 m1i 10e3
+CI1  Z m1i 10e-9 IC=10mV
+XOPAMP1I 0 m1i Vdd Vss Z TL081
+*XZ Z1 Z Vdd Vss Inte097
+*------K1/K2------
+R12a mAX m12 1e3
+R12b m12 AX1 1e3
+XOPQMP12 0 m12 Vdd Vss AX1 TL081
+*------Y------
+*SUMADOR---Y
+RS3 AX1 m2s 10e3
+RS4   F m2s 10e3
+RF2  Y0 m2s 10e3
+XOPAMP2S 0 m2s Vdd Vss Y0 TL081
+RN3 Y0 m2n 10e3
+RN4 Y1 m2n 10e3
+XOPAMP2N 0 m2n Vdd Vss Y1 TL081
+*INTEGRADOR---Y
+RI2 Y1 m2i 10e3
+CI2  Y m2i 10e-9 IC=10mV
+XOPAMP2I 0 m2i Vdd Vss Y TL081
+*XY Y1 Y Vdd Vss Inte097
+*------K2------
+R10a mW  m10 1e3
+R10b m10 mW1 1e3
+XOPQMP10 0 m10 Vdd Vss mW1 TL081
+*------K2K3/K1------
+R11a V  m11 1e3
+R11b V0 m11 1e3
+XOPQMP11 0 m11 Vdd Vss V0 TL081
+*------X------
+*SUMADOR---X
+RS5   U m3s 10e3
+RS6  V0 m3s 10e3
+RS7 mW1 m3s 10e3
+RF3  X0 m3s 10e3
+XOPAMP3S 0 m3s Vdd Vss X0 TL081
+RN5 X0 m3n 10e3
+RN6 X1 m3n 10e3
+XOPAMP3N 0 m3n Vdd Vss X1 TL081
+*INTEGRADOR---X
+RI3 X1 m3i 10e3
+CI3  X m3i 10e-9 IC=10mV
+XOPAMP3I 0 m3i Vdd Vss X TL081
+*XP X1 X Vdd Vss Inte097
+*-----|X|-----
+R8 X m4 10e3
+R9 m4 n1 10e3
+R10 m4 n2 10e3
+Diodo1 n1 n3 D1N4148
+Diodo2 n3 n2 D1N4148
+R11 n1 m5 10e3
+R12 m5 AX 10e3
+XOPAMP4 0 m4 Vdd Vss n3 TL081
+XOPAMP5 n2 m5 Vdd Vss AX TL081
+R21a AX m14 10e3
+R21b m14 mAX 10e3
+XOPQMP14 0 m14 Vdd Vss mAX TL081
+*------Multiplicadores----
+*E1 W 0 MULTIPLY X 0 Y 0 1
+X1 X 0 Y 0 Vss 0 W0 Vdd ad633
+R13 W0 m6 1e3
+R14 m6 W 10e3
+XOPAMP6 0 m6 Vdd Vss W TL081
+R15 W m7 10e3
+R16 m7 mW 10e3
+XOPAMP7 0 m7 Vdd Vss mW TL081
+
+*E2 V 0 MULTIPLY Y 0 0 Z 1
+X2 Y 0 0 Z Vss 0 v1 Vdd ad633
+R17 v1 m8 1e3
+R18 m8 V 10e3
+XOPAMP8 0 m8 Vdd Vss V TL081
+
+*E3 U 0 MULTIPLY X 0 A 0 1
+X3 X 0 0 A Vss 0 u1 Vdd ad633
+R19 u1 m9 1e3
+R20 m9 U 10e3
+XOPAMP9 0 m9 Vdd Vss U TL081
+*--------------------------
+.tran 1n 500m
+.probe
+.OPTIONS reltol=0.00001 abstol=1e-21
+#autoplot v(X) v(Y) 
+.end
